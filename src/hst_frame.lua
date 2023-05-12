@@ -1,44 +1,77 @@
 local an, hst = ...
 
-local function impl_hst_options_menu(panel)
-	local checkBox = CreateFrame("CheckButton", "TEMPTEMPTEMPHSTTEMP", panel, "InterfaceOptionsCheckButtonTemplate")
-	checkBox:SetPoint("TOPLEFT", 16, -16)
-	checkBox:SetScript("OnClick", function(self)
-		print('well met xd')
+local hst_ui_state = {}
+-- meta frame for timer tracking
+hst_ui_state.main_frame = nil
+-- progress bar ui
+hst_ui_state.swing = nil
+-- progress bar background
+hst_ui_state.swing_background = nil
+hst.ui = hst_ui_state or {}
+
+local function make_checkbox(parent, title, x, y, on_click_func, initial_val)
+	local cb = CreateFrame("CheckButton", title, parent, "InterfaceOptionsCheckButtonTemplate")
+	cb:SetPoint("TOPLEFT", x, y)
+	cb:SetScript("OnClick", function(self)
+		local value = self:GetChecked()
+		self:GetCheckedTexture():SetDesaturated(not value)
+		on_click_func(self, value)
 	end)
-	--checkBox:SetChecked(MyAddonDB.MyCheckBoxEnabled)
-	checkBox.Text:SetText("test")
+	cb.Text:SetText(title)
+	cb:SetChecked(initial_val)
+end
+
+local function impl_hst_options_menu(panel)
+	local swing_timer_visible = make_checkbox(panel, "Swing Timer Visible", 16, -40, function(self, value)
+		print('eee')
+	end)
+	local csaa_mode_checkbox = make_checkbox(panel, "CSAA Mode", 16, -16, function(self, value)
+		hst.settings.allow_csaa_override = value
+		self:GetCheckedTexture():SetDesaturated(not value)
+		if(hst.settings.allow_csaa_override) then
+			print('CSAA Mode Enabled')
+		else
+			print('CSAA Mode Disabled')
+		end
+	end)
 end
 
 hst.create_frame = function()
 	do
 		-- invisible frame for swing timer tracking.
-		local f = CreateFrame("Frame")
-		f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		hst.ui.main_frame = CreateFrame("Frame")
+		hst.ui.main_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		-- hst_swing will track the swing times.
-		f:SetScript("OnEvent", hst.impl_on_combat_event)
+		hst.ui.main_frame:SetScript("OnEvent", hst.impl_on_combat_event)
 	end
 
 	-- and then a frame to actually represent the swing timer.
 	do
 		local f = CreateFrame("Frame", "HarrandSwingTimer Frame", UIParent)
-		f:SetSize(200, 200)
-		f:SetPoint("CENTER", 0, 0)
-		local bar = CreateFrame("StatusBar", nil, f)
-		bar:SetAllPoints(f)
-		bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-		bar:SetMinMaxValues(0, 1)
+		f:SetSize(200, 20)
+		f:SetPoint("CENTER", 0, -310)
+		hst.ui.swing = CreateFrame("StatusBar", nil, f)
+		hst.ui.swing_background = CreateFrame("Frame", nil, f)
+		hst.ui.swing_background:SetAllPoints(f)
+		local bgt = hst.ui.swing_background:CreateTexture("ARTWORK")
+		bgt:SetAllPoints()
+		bgt:SetAlpha(0.5)
+		bgt:SetColorTexture(0.1, 0.1, 0.1)
+		hst.ui.swing:SetAllPoints(f)
+		hst.ui.swing:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+		hst.ui.swing:SetMinMaxValues(0, 1)
 		
-		-- todo: disable/enable bar depending if we're in combat or not?
-		bar:SetScript("OnUpdate", function()
-			if(hst.csaa.get_will_next_swing_generate_hopo()) then
-				bar:SetStatusBarColor(1, 0, 0)
+		-- todo: disable/enable hst.ui.swing depending if we're in combat or not?
+		hst.ui.swing:SetScript("OnUpdate", function()
+			if(hst.settings.allow_csaa_override and hst.csaa.get_will_next_swing_generate_hopo()) then
+				hst.ui.swing:SetStatusBarColor(1, 0, 0)
 			else
-				bar:SetStatusBarColor(1, 1, 0)
+				hst.ui.swing:SetStatusBarColor(1, 1, 0)
 			end
-			bar:SetValue(hst.get_swing_progress())
+			hst.ui.swing:SetValue(hst.get_swing_progress())
 		end)
-		bar:Show()
+		hst.ui.swing:Show()
+		hst.ui.swing_background:Show()
 	end
 
 	-- and then an options frame for the addons interface.
