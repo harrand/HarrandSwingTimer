@@ -1,5 +1,15 @@
 local an, hst = ...
 
+local function impl_hst_options_menu(panel)
+	local checkBox = CreateFrame("CheckButton", "TEMPTEMPTEMPHSTTEMP", panel, "InterfaceOptionsCheckButtonTemplate")
+	checkBox:SetPoint("TOPLEFT", 16, -16)
+	checkBox:SetScript("OnClick", function(self)
+		print('well met xd')
+	end)
+	--checkBox:SetChecked(MyAddonDB.MyCheckBoxEnabled)
+	checkBox.Text:SetText("test")
+end
+
 hst.create_frame = function()
 	do
 		-- invisible frame for swing timer tracking.
@@ -29,5 +39,13 @@ hst.create_frame = function()
 			bar:SetValue(hst.get_swing_progress())
 		end)
 		bar:Show()
+	end
+
+	-- and then an options frame for the addons interface.
+	do
+		local panel = CreateFrame("Frame", "HarrandSwingTimer_Options", InterfaceOptionsFramePanelContainer)
+		panel.name = "Harrand Swing Timer"
+		panel:SetScript("OnShow", impl_hst_options_menu)
+		InterfaceOptions_AddCategory(panel)
 	end
 end
