@@ -9,7 +9,7 @@ hst_ui_state.swing = nil
 hst_ui_state.swing_background = nil
 hst.ui = hst_ui_state or {}
 
-local function make_checkbox(parent, title, x, y, on_click_func, initial_val)
+local function make_checkbox(parent, title, x, y, on_click_func, initial_val, tooltip)
 	local cb = CreateFrame("CheckButton", title, parent, "InterfaceOptionsCheckButtonTemplate")
 	cb:SetPoint("TOPLEFT", x, y)
 	cb:SetScript("OnClick", function(self)
@@ -17,15 +17,26 @@ local function make_checkbox(parent, title, x, y, on_click_func, initial_val)
 		self:GetCheckedTexture():SetDesaturated(not value)
 		on_click_func(self, value)
 	end)
+	if(tooltip ~= nil) then
+		cb:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetText(tooltip, 1, 1, 1, true)
+			GameTooltip:Show()
+		end)
+		cb:SetScript("OnLeave", function(self)
+			GameTooltip:Hide()
+		end)
+	end
 	cb.Text:SetText(title)
 	cb:SetChecked(initial_val)
 end
 
 local function impl_hst_options_menu(panel)
-	local swing_timer_visible = make_checkbox(panel, "Swing Timer Visible", 16, -40, function(self, value)
+	local swing_timer_visible = make_checkbox(panel, "Swing Timer Visible", 16, -16, function(self, value)
 		print('eee')
-	end)
-	local csaa_mode_checkbox = make_checkbox(panel, "CSAA Mode", 16, -16, function(self, value)
+		hst.ui.main_frame:SetShown(value)
+	end, hst.ui.main_frame:IsShown(), "Controls whether the swing timer is visible or not. Default: true")
+	local csaa_mode_checkbox = make_checkbox(panel, "CSAA Mode", 16, -40, function(self, value)
 		hst.settings.allow_csaa_override = value
 		self:GetCheckedTexture():SetDesaturated(not value)
 		if(hst.settings.allow_csaa_override) then
@@ -33,31 +44,31 @@ local function impl_hst_options_menu(panel)
 		else
 			print('CSAA Mode Disabled')
 		end
-	end)
+	end, hst.settings.allow_csaa_override, "If enabled, the swing timer will be coloured red if the next crusading strike will generate a Holy Power. Default: false")
 end
 
 hst.create_frame = function()
 	do
 		-- invisible frame for swing timer tracking.
-		hst.ui.main_frame = CreateFrame("Frame")
-		hst.ui.main_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		local f = CreateFrame("Frame")
+		f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		-- hst_swing will track the swing times.
-		hst.ui.main_frame:SetScript("OnEvent", hst.impl_on_combat_event)
+		f:SetScript("OnEvent", hst.impl_on_combat_event)
 	end
 
 	-- and then a frame to actually represent the swing timer.
 	do
-		local f = CreateFrame("Frame", "HarrandSwingTimer Frame", UIParent)
-		f:SetSize(200, 20)
-		f:SetPoint("CENTER", 0, -310)
-		hst.ui.swing = CreateFrame("StatusBar", nil, f)
-		hst.ui.swing_background = CreateFrame("Frame", nil, f)
-		hst.ui.swing_background:SetAllPoints(f)
+		hst.ui.main_frame = CreateFrame("Frame", "HarrandSwingTimer Frame", UIParent)
+		hst.ui.main_frame:SetSize(200, 20)
+		hst.ui.main_frame:SetPoint("CENTER", 0, -310)
+		hst.ui.swing = CreateFrame("StatusBar", nil, hst.ui.main_frame)
+		hst.ui.swing_background = CreateFrame("Frame", nil, hst.ui.main_frame)
+		hst.ui.swing_background:SetAllPoints(hst.ui.main_frame)
 		local bgt = hst.ui.swing_background:CreateTexture("ARTWORK")
-		bgt:SetAllPoints()
+		bgt:SetAllPoints(hst.ui.main_frame)
 		bgt:SetAlpha(0.5)
 		bgt:SetColorTexture(0.1, 0.1, 0.1)
-		hst.ui.swing:SetAllPoints(f)
+		hst.ui.swing:SetAllPoints(hst.ui.main_frame)
 		hst.ui.swing:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 		hst.ui.swing:SetMinMaxValues(0, 1)
 		

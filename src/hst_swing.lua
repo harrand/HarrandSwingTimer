@@ -15,7 +15,6 @@ local last_csaa_procced_hopo = false
 local most_recent_swing_timestamp = 0
 hst.impl_on_combat_event = function(self, event, ...)
 	local timestamp, evt_t, _, _, caster_name, _, _, _, _, _, _, spell_id = CombatLogGetCurrentEventInfo()
-	--print(spell_id .. " - " .. select(1, data)
 	if(caster_name ~= UnitName("player")) then
 		return
 	end

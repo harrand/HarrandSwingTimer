@@ -1,7 +1,7 @@
 local an, hst = ...
 
 local hst_db_t = {}
-hst_db_t.allow_csaa_override = true
+hst_db_t.allow_csaa_override = false
 
 hst.load_settings = function()
 	-- todo: implement
