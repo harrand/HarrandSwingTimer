@@ -84,7 +84,7 @@ local function impl_hst_options_menu(panel)
 		hst.ui.main_frame:SetWidth(value)
 	end, 0, 500, w, "X Coordinate of the swing timer UI element")
 
-	local slider_h = make_slider(panel, "Y Position", 16, -216, function(ui, value)
+	local slider_h = make_slider(panel, "Height", 16, -216, function(ui, value)
 		hst.settings.swingh = value
 		hst.ui.main_frame:SetHeight(value)
 	end, 0, 500, h, "Y Coordinate of the swing timer UI element")
