@@ -28,13 +28,13 @@ hst.impl_on_combat_event = function(self, event, ...)
 	if(table_contains(melee_spells, spell_id) or evt_t == "SWING_DAMAGE") then
 		swing_start_time = GetTime()
 		if(most_recent_swing_timestamp + 0.1 < timestamp) then
-			print('swing detected')
+			--print('swing detected')
 			most_recent_swing_timestamp = timestamp
 			last_csaa_procced_hopo = false
 		end
 	end
 	if(hst.settings.allow_csaa_override and spell_id == 406834) then-- csaa but with a hopo
-		print('hopo generated')
+		--print('hopo generated')
 		last_csaa_procced_hopo = true
 	end
 end

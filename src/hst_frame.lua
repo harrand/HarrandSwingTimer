@@ -9,6 +9,25 @@ hst_ui_state.swing = nil
 hst_ui_state.swing_background = nil
 hst.ui = hst_ui_state or {}
 
+local function get_dimensions()
+	local w = GetScreenWidth() * UIParent:GetEffectiveScale()
+	local h = GetScreenHeight() * UIParent:GetEffectiveScale()
+	return w, h
+end
+
+local function make_slider(parent, title, x, y, value_changed_func, min, max, initial_val, tooltip)
+	local sl = CreateFrame("Slider", title, parent, "OptionsSliderTemplate")
+	sl:SetMinMaxValues(min, max)
+	sl:SetValue(min + max / 2)
+	sl:SetPoint("TOPLEFT", x, y)
+	sl:SetScript("OnValueChanged", function(self, value)
+		value_changed_func(self, value)
+	end)
+	local label = sl:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	label:SetPoint("BOTTOM", sl, "TOP", 0, 5)
+	label:SetText(title)
+end
+
 local function make_checkbox(parent, title, x, y, on_click_func, initial_val, tooltip)
 	local cb = CreateFrame("CheckButton", title, parent, "InterfaceOptionsCheckButtonTemplate")
 	cb:SetPoint("TOPLEFT", x, y)
@@ -33,7 +52,6 @@ end
 
 local function impl_hst_options_menu(panel)
 	local swing_timer_visible = make_checkbox(panel, "Swing Timer Visible", 16, -16, function(self, value)
-		print('eee')
 		hst.ui.main_frame:SetShown(value)
 	end, hst.ui.main_frame:IsShown(), "Controls whether the swing timer is visible or not. Default: true")
 	local csaa_mode_checkbox = make_checkbox(panel, "CSAA Mode", 16, -40, function(self, value)
@@ -44,7 +62,27 @@ local function impl_hst_options_menu(panel)
 		else
 			print('CSAA Mode Disabled')
 		end
-	end, hst.settings.allow_csaa_override, "If enabled, the swing timer will be coloured red if the next crusading strike will generate a Holy Power. Default: false")
+	end, hst.settings.allow_csaa_override, "If enabled, the swing timer will be coloured red if the next crusading strike will generate a Holy Power. Default: true")
+
+	local dx, dy = get_dimensions()
+	local p, _, _, px, py = hst.ui.main_frame:GetPoint()
+	local w = hst.ui.main_frame:GetWidth()
+	local h = hst.ui.main_frame:GetHeight()
+	local slider_x = make_slider(panel, "X Position", 16, -84, function(ui, value)
+		hst.ui.main_frame:SetPoint(p, hst.ui.main_frame:GetParent(), p, value, py)
+	end, -dx/2, dx/2, px, "X Coordinate of the swing timer UI element")
+
+	local slider_y = make_slider(panel, "Y Position", 16, -128, function(ui, value)
+		hst.ui.main_frame:SetPoint(p, hst.ui.main_frame:GetParent(), p, px, value)
+	end, -dy/2, dy, py, "Y Coordinate of the swing timer UI element")
+
+	local slider_w = make_slider(panel, "Width", 16, -172, function(ui, value)
+		hst.ui.main_frame:SetWidth(value)
+	end, 0, 500, w, "X Coordinate of the swing timer UI element")
+
+	local slider_h = make_slider(panel, "Y Position", 16, -216, function(ui, value)
+		hst.ui.main_frame:SetHeight(value)
+	end, 0, 500, h, "Y Coordinate of the swing timer UI element")
 end
 
 hst.create_frame = function()
