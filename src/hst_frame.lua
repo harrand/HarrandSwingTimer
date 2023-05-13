@@ -51,7 +51,8 @@ local function make_checkbox(parent, title, x, y, on_click_func, initial_val, to
 end
 
 local function impl_hst_options_menu(panel)
-	local swing_timer_visible = make_checkbox(panel, "Swing Timer Visible", 16, -16, function(self, value)
+	local swing_timer_visible_checkbox = make_checkbox(panel, "Swing Timer Visible", 16, -16, function(self, value)
+		hst.settings.swing_timer_visible = value
 		hst.ui.main_frame:SetShown(value)
 	end, hst.ui.main_frame:IsShown(), "Controls whether the swing timer is visible or not. Default: true")
 	local csaa_mode_checkbox = make_checkbox(panel, "CSAA Mode", 16, -40, function(self, value)
@@ -69,18 +70,22 @@ local function impl_hst_options_menu(panel)
 	local w = hst.ui.main_frame:GetWidth()
 	local h = hst.ui.main_frame:GetHeight()
 	local slider_x = make_slider(panel, "X Position", 16, -84, function(ui, value)
+		hst.settings.swingx = value
 		hst.ui.main_frame:SetPoint(p, hst.ui.main_frame:GetParent(), p, value, py)
 	end, -dx/2, dx/2, px, "X Coordinate of the swing timer UI element")
 
 	local slider_y = make_slider(panel, "Y Position", 16, -128, function(ui, value)
+		hst.settings.swingy = value
 		hst.ui.main_frame:SetPoint(p, hst.ui.main_frame:GetParent(), p, px, value)
 	end, -dy/2, dy, py, "Y Coordinate of the swing timer UI element")
 
 	local slider_w = make_slider(panel, "Width", 16, -172, function(ui, value)
+		hst.settings.swingw = value
 		hst.ui.main_frame:SetWidth(value)
 	end, 0, 500, w, "X Coordinate of the swing timer UI element")
 
 	local slider_h = make_slider(panel, "Y Position", 16, -216, function(ui, value)
+		hst.settings.swingh = value
 		hst.ui.main_frame:SetHeight(value)
 	end, 0, 500, h, "Y Coordinate of the swing timer UI element")
 end
@@ -97,8 +102,9 @@ hst.create_frame = function()
 	-- and then a frame to actually represent the swing timer.
 	do
 		hst.ui.main_frame = CreateFrame("Frame", "HarrandSwingTimer Frame", UIParent)
-		hst.ui.main_frame:SetSize(200, 20)
-		hst.ui.main_frame:SetPoint("CENTER", 0, -310)
+		hst.ui.main_frame:SetSize(hst.settings.swingw, hst.settings.swingh)
+		hst.ui.main_frame:SetPoint("CENTER", hst.settings.swingx, hst.settings.swingy)
+		hst.ui.main_frame:SetShown(hst.settings.swing_timer_visible)
 		hst.ui.swing = CreateFrame("StatusBar", nil, hst.ui.main_frame)
 		hst.ui.swing_background = CreateFrame("Frame", nil, hst.ui.main_frame)
 		hst.ui.swing_background:SetAllPoints(hst.ui.main_frame)

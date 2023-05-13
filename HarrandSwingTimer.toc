@@ -3,6 +3,7 @@
 ## Notes: Modern swing timer for Dragonflight, with a focus on Crusading Strikes (CSAA)
 ## Version: 0.2.0
 ## IconTexture: 135891
+## SavedVariablesPerCharacter: hst_db_t
 
 src/hst_settings.lua
 src/hst_swing.lua
