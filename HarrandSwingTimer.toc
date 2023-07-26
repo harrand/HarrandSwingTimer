@@ -1,7 +1,7 @@
-## Interface: 100100
+## Interface: 100105
 ## Title: Harrand's Swing Timer
 ## Notes: Modern swing timer for Dragonflight, with a focus on Crusading Strikes (CSAA)
-## Version: 0.2.0
+## Version: 0.3.0
 ## IconTexture: 135891
 ## SavedVariablesPerCharacter: hst_db_t
 
