@@ -134,6 +134,7 @@ hst.create_frame = function()
 		local panel = CreateFrame("Frame", "HarrandSwingTimer_Options", InterfaceOptionsFramePanelContainer)
 		panel.name = "Harrand Swing Timer"
 		panel:SetScript("OnShow", impl_hst_options_menu)
-		InterfaceOptions_AddCategory(panel)
+		local category, layout = _G.Settings.RegisterCanvasLayoutCategory(panel, panel.name)
+		_G.Settings.RegisterAddOnCategory(category)
 	end
 end
