@@ -1,2 +1,2 @@
 # HarrandSwingTimer
-Lightweight swing timer addon for WoW 10.2.5, with a particular focus on Crusading Strikes (CSAA)
+Lightweight swing timer addon for WoW 11.0.2, with a particular focus on Crusading Strikes (CSAA)
